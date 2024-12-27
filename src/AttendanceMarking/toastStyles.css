@@ -1,0 +1,46 @@
+/* toastStyles.css */
+.Toastify__toast-container {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  .center {
+    margin-top: 50px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .Toastify__toast {
+    background: #007bff; /* Customize the background color */
+    color: #fff; /* Customize the text color */
+    border-radius: 4px;
+    padding: 10px 20px;
+    margin: 10px;
+    pointer-events: auto;
+    transition: opacity 0.5s, transform 0.5s;
+    transform: translateY(0);
+  }
+  
+  .Toastify__toast--success {
+    background: #25c9d8; /* Customize the success toast background color */
+  }
+  
+  .Toastify__close-button {
+    color: #fff;
+  }
+  
+  .Toastify__close-button:hover {
+    color: #fff;
+  }
+  
