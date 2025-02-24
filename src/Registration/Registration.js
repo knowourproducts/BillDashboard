@@ -3,36 +3,27 @@ import { useFormik } from "formik";
 import "./Registration.css";
 import { Button } from "react-bootstrap";
 import { registrationSchema } from "./RegistrationSchema";
-import vidhataImage from '../../src/shel.webp'; // Import the image
+import vidhataImage from '../../src/billDashboard.png'; // Import the image
 import { Link } from "react-router-dom";
-import DatePicker from "react-datepicker"; // Import the date picker component
-import "react-datepicker/dist/react-datepicker.css"; // Import the date picker styles
 // eslint-disable-next-line jsx-a11y/anchor-is-valid
 
 const initialValues = {
   name: "",
   mobile: "",
   email: "",
-  joiningDate: new Date(), // Add a new field for joining date with a default value
-  identityNo: "",
-  preparingFor: "",
-  type: "",
-  seatNo: "",
-  timeSlot: "",
+  productId: "",
+  productDetails: "",
+  paymentMode: "",
+  soldBy: "",
   address: ""
 };
 
 const Registration = () => {
-  const [timeSlot, setTimeSlot] = useState([]); // Use to Set Time Slot
-  const [type, setType] = useState([]); // State to store seat type
-  const [seatNo, setSeatNo] = useState([]); //Use  to store seat No
   const [alert, setAlert] = useState({ show: false, message: "" });
 
 
 
   useEffect(() => {
-    const timeSlot = ["Full Day","Morning half Day","Evening half Day"];
-    setTimeSlot(timeSlot);
   }, []);
 
 
@@ -41,31 +32,7 @@ const Registration = () => {
     // State to track the scroll position
     const [scrollPosition, setScrollPosition] = useState(0);
   
-    // // Function to handle scroll events
-    // const handleScroll = () => {
-    //   const currentPosition = window.pageYOffset;
-  
-    //   // Check the scroll direction
-    //   if (currentPosition > scrollPosition) {
-    //     console.log("scroll direction",scrollDirection)
-    //     setScrollDirection("down");
-    //   } else {
-    //     setScrollDirection("up");
-    //   }
-  
-    //   // Update the scroll position
-    //   setScrollPosition(currentPosition);
-    // };
-  
-    // useEffect(() => {
-    //   // Add event listener for scroll events
-    //   window.addEventListener("scroll", handleScroll);
-  
-    //   // Clean up the event listener on component unmount
-    //   return () => {
-    //     window.removeEventListener("scroll", handleScroll);
-    //   };
-    // }, [scrollPosition]);
+ 
 
     useEffect(() => {
       // Function to handle scroll events
@@ -96,8 +63,6 @@ const Registration = () => {
   
 
   useEffect(() => {
-    const seatType = ["Regular","Reserved"];
-    setType(seatType);
   }, []);
 
 
@@ -105,25 +70,7 @@ const Registration = () => {
 
 
 
-     // Fetch user IDs from an API when the component mounts
-     useEffect(() => {
-      const fetchSeatNo = async () => {
-        try {
-          const response = await fetch('https://script.google.com/macros/s/AKfycbzsVxtBNszPaYAZnAERXnjS38dNccS8AwmIYQUl7B2hLNy9me_2a-I9gLPALZ28dR2lVA/exec?v=' + Date.now()); // Replace with your API endpoint
-          if (response.ok) {
-            const data = await response.json();
-            const seatNo = data.map(data => data.seatNo);
-           setSeatNo(seatNo); // Assuming the API response contains user IDs
-          } else {
-            // Handle API request error
-          }
-        } catch (error) {
-          // Handle fetch error
-        }
-      };
   
-      fetchSeatNo();
-    }, []);
   
 
   const {
@@ -134,49 +81,23 @@ const Registration = () => {
     handleChange,
     handleSubmit,
     resetForm,
-    setFieldValue, // Add setFieldValue for updating the joining date
   } = useFormik({
     initialValues,
     validationSchema: registrationSchema,
     onSubmit: (values, action) => {
+      console.log("Registration data to be sent")
+
       console.log("values",values)
-      // alert(
-      //   "Form is valid now!. You can make a call to API inside onSubmit function"
-      // );
+     
       postData(values)
       action.resetForm();
     },
   });
 
 
-  function generateUniqueIdentifier(mobileNumber,joiningDate) {
-    // Validate if the input is a 10-digit number
-    if (!/^\d{10}$/.test(mobileNumber)) {
-        return "Invalid input, please provide a 10-digit mobile number.";
-    }
-
-    const day  = String(joiningDate.getDate()).padStart(2, '0');
 
 
-    // Extract individual digits
-    const digits = mobileNumber.split('').map(Number);
 
-    // Perform the desired operations
-    const firstThreeDigits = digits.slice(0, 4).reduce((sum, digit) => sum + digit, 0);
-    const lastFourDigits = digits.slice(8).reduce((product, digit) => product * digit, 1);
-
-    // Create the unique identifier
-    const uniqueIdentifier = `${day}${firstThreeDigits}${lastFourDigits}`;
-
-    return uniqueIdentifier;
-}
-
-function formatDate(date) {
-  const day = date.getDate().toString().padStart(2, '0');
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const year = date.getFullYear().toString();
-  return `${day}/${month}/${year}`;
-}
   const postData = async (formValues) => {
     try {
        const currentDate = new Date();
@@ -192,11 +113,8 @@ function formatDate(date) {
     
   
 
-    const membershipId = generateUniqueIdentifier(formValues.mobile,formValues.joiningDate)
-    console.log("Generated Membership ID:", membershipId.toUpperCase());
-console.log("address",formValues.address)
-      const url = 'https://script.google.com/macros/s/AKfycbx-YhWdcSymmCVJC1vgKqXEDE_Xlnljzsom8Y0MHDefF4D5BEIWzF43z_UlnCrGEgW5/exec?action=addFormData'; // Replace with your API endpoint
-      const dataObject = { date: dateString,id: membershipId.toUpperCase(),name: formValues.name,mobile: formValues.mobile,email: formValues.email,joiningDate: formatDate(formValues.joiningDate),identityNo: formValues.identityNo,preparingFor: formValues.preparingFor,seatType: formValues.type,seatNo: formValues.seatNo,timeSlot: formValues.timeSlot,address: formValues.address }; // Replace with your data object
+      const url = 'https://script.google.com/macros/s/AKfycbwLOPME56GWpvoV-JLUnIswjK7GSxTZ46d9vIfEhSzEpuwwPUKf6aejxcyVix4w_6ye0A/exec?action=addFormData'; // Replace with your API endpoint
+      const dataObject = { date: dateString,name: formValues.name,mobile: formValues.mobile,email: formValues.email,productId: formValues.productId,productDetails: formValues.productDetails,paymentMode: formValues.paymentMode,soldBy: formValues.soldBy,address: formValues.address }; // Replace with your data object
       console.log("Date Object",dataObject)
       const requestOptions = {
         redirect: "follow",
@@ -260,7 +178,7 @@ console.log("address",formValues.address)
               <div class="card-body p-md-5">
                 <div class="row justify-content-center">
                   <div class="col-md-10 col-lg-6 col-xl-5 order-2 order-lg-1">
-                    <p class="text-center h1 fw-bold mb-5 mt-4">Shel Digtal Library</p>
+                    <p class="text-center h1 fw-bold mb-5 mt-4">Bill Dashboard</p>
                     <form onSubmit={handleSubmit}>
                       <div className="row">
                         <div className="col text-left">
@@ -324,35 +242,20 @@ console.log("address",formValues.address)
                       </div>
                       <div className="row mt-3">
                         <div className="col text-left">
-                          <label htmlFor="joiningDate" className="form-label">
-                            Joining Date
-                          </label>
-                          <br />
-                          <DatePicker
-                            id="joiningDate"
-                            name="joiningDate"
-                            selected={values.joiningDate}
-                            onChange={(date) => setFieldValue("joiningDate", date)}
-                            dateFormat="MMMM d, yyyy"
-                          />
-                        </div>
-                      </div>
-                      <div className="row mt-3">
-                        <div className="col text-left">
                           <label htmlFor="first" className="form-label">
-                            Identity No
+                            product Id
                           </label>
                           <input
-                            id="identityNo"
-                            name="identityNo"
+                            id="productId"
+                            name="productId"
                             className="form-control"
-                            value={values.identityNo}
+                            value={values.productId}
                             onChange={handleChange}
                             onBlur={handleBlur}
                           />
-                          {errors.identityNo && touched.identityNo ? (
+                          {errors.productId && touched.productId ? (
                             <small className="text-danger mt-1">
-                              {errors.identityNo}
+                              {errors.productId}
                             </small>
                           ) : null}
                         </div>
@@ -360,98 +263,65 @@ console.log("address",formValues.address)
                       <div className="row mt-3">
                         <div className="col text-left">
                           <label htmlFor="first" className="form-label">
-                            Preparing For
+                            Payment Mode
                           </label>
                           <input
-                            id="preparingFor"
-                            name="preparingFor"
+                            id="paymentMode"
+                            name="paymentMode"
                             className="form-control"
-                            value={values.preparingFor}
+                            value={values.paymentMode}
                             onChange={handleChange}
                             onBlur={handleBlur}
                           />
-                          {errors.preparingFor && touched.preparingFor ? (
+                          {errors.paymentMode && touched.paymentMode ? (
                             <small className="text-danger mt-1">
-                              {errors.preparingFor}
+                              {errors.paymentMode}
                             </small>
                           ) : null}
                         </div>
                       </div>
                       <div className="row mt-3">
-                      <div className="col text-left">
-        <label htmlFor="type" className="form-label">
-          Seat Type
-        </label>
-        <select
-          id="type"
-          name="type"
-          className="form-control"
-          value={values.type}
-          onChange={handleChange}
-          onBlur={handleBlur}
-        >
-          <option value="">Select Seat Type</option>
-          {type.map((type, index) => (
-            <option key={index} value={type}>
-              {type}
-            </option>
-          ))}
-        </select>
-        {errors.type && touched.type ? (
-          <small className="text-danger mt-1">{errors.type}</small>
-        ) : null}
-      </div>
+                        <div className="col text-left">
+                          <label htmlFor="first" className="form-label">
+                            Product Details
+                          </label>
+                          <input
+                            id="productDetails"
+                            name="productDetails"
+                            className="form-control"
+                            value={values.productDetails}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                          />
+                          {errors.productDetails && touched.productDetails ? (
+                            <small className="text-danger mt-1">
+                              {errors.productDetails}
+                            </small>
+                          ) : null}
+                        </div>
                       </div>
+
                       <div className="row mt-3">
-                      <div className="col text-left">
-        <label htmlFor="seatNo" className="form-label">
-          Seat No
-        </label>
-        <select
-          id="seatNo"
-          name="seatNo"
-          className="form-control"
-          value={values.seatNo}
-          onChange={handleChange}
-          onBlur={handleBlur}
-        >
-          <option value="">Select Seat No</option>
-          {seatNo.map((item, index) => (
-            <option key={index} value={item}>
-              {item}
-            </option>
-          ))}
-        </select>
-        {errors.seatNo && touched.seatNo ? (
-          <small className="text-danger mt-1">{errors.seatNo}</small>
-        ) : null}
-      </div>
+                        <div className="col text-left">
+                          <label htmlFor="first" className="form-label">
+                            Sold By
+                          </label>
+                          <input
+                            id="soldBy"
+                            name="soldBy"
+                            className="form-control"
+                            value={values.soldBy}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                          />
+                          {errors.soldBy && touched.soldBy ? (
+                            <small className="text-danger mt-1">
+                              {errors.soldBy}
+                            </small>
+                          ) : null}
+                        </div>
                       </div>
-                      <div className="row mt-3">
-                      <div className="col text-left">
-        <label htmlFor="timeSlot" className="form-label">
-          Seat No
-        </label>
-        <select
-          id="timeSlot"
-          name="timeSlot"
-          className="form-control"
-          value={values.timeSlot}
-          onChange={handleChange}
-          onBlur={handleBlur}
-        >
-          <option value="">Select Time Slot</option>
-          {timeSlot.map((type, index) => (
-            <option key={index} value={type}>
-              {type}
-            </option>
-          ))}
-        </select>
-        {errors.timeSlot && touched.timeSlot ? (
-          <small className="text-danger mt-1">{errors.timeSlot}</small>
-        ) : null}
-      </div>
-                      </div>
+
                       <div className="row mt-3">
                         <div className="col text-left">
                           <label htmlFor="address" className="form-label">
@@ -492,17 +362,17 @@ console.log("address",formValues.address)
                           <div className="row mt-3">
 
                           { <div className="col text-left">
-                          <Link to="/user-list">View Registered Users</Link>
+                          <Link to="/user-list">View Orders</Link>
                           <br>
                           </br>
                           <br>
                           </br>
-                          <Link to="/revenue-chart">View Revenue</Link>
+                          <Link to="/revenue-chart">View Earning</Link>
                           <br>
                           </br>
                           <br>
                           </br>
-                          <Link to="/make-payment">Make Payment</Link>
+                          <Link to="/make-payment">Make Order</Link>
                           </div> }
                           </div>
 
