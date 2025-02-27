@@ -8,14 +8,12 @@ import { Link } from "react-router-dom";
 // eslint-disable-next-line jsx-a11y/anchor-is-valid
 
 const initialValues = {
-  name: "",
-  mobile: "",
-  email: "",
-  productId: "",
-  productDetails: "",
-  paymentMode: "",
-  soldBy: "",
-  address: ""
+  productBrand: "",
+  mrp: "",
+  size: "",
+  colour: "",
+  costPrice: "",
+  productCode: "",
 };
 
 const Registration = () => {
@@ -113,8 +111,8 @@ const Registration = () => {
     
   
 
-      const url = 'https://script.google.com/macros/s/AKfycbwLOPME56GWpvoV-JLUnIswjK7GSxTZ46d9vIfEhSzEpuwwPUKf6aejxcyVix4w_6ye0A/exec?action=addFormData'; // Replace with your API endpoint
-      const dataObject = { date: dateString,name: formValues.name,mobile: formValues.mobile,email: formValues.email,productId: formValues.productId,productDetails: formValues.productDetails,paymentMode: formValues.paymentMode,soldBy: formValues.soldBy,address: formValues.address }; // Replace with your data object
+      const url = 'https://script.google.com/macros/s/AKfycbx4WrXjWWMd_7hLXdNvOgDnhFZPQArTcZcYrZjVzSTE_NX4pxpow5WJLPvEg48DeEVFhw/exec?action=addFormData'; // Replace with your API endpoint
+      const dataObject = { date: dateString,brandName: formValues.productBrand,mrp: formValues.mrp,size: formValues.size,colour: formValues.colour,costPrice: formValues.costPrice,productCode: formValues.productCode}; // Replace with your data object
       console.log("Date Object",dataObject)
       const requestOptions = {
         redirect: "follow",
@@ -129,7 +127,7 @@ const Registration = () => {
       console.log("Registration data to be sent",dataObject)
 
        const response = await fetch(url, requestOptions);
-      setAlert({ show: true, message: "User Details Successfully Saved" });
+      setAlert({ show: true, message: "Product Details Successfully Saved" });
 
  console.log(response)
       // Handle the response data as needed
@@ -183,19 +181,19 @@ const Registration = () => {
                       <div className="row">
                         <div className="col text-left">
                           <label htmlFor="last`" className="form-label">
-                             Name
+                             Brand Name
                           </label>
                           <input
-                            id="name"
-                            name="name"
+                            id="productBrand"
+                            name="productBrand"
                             className="form-control"
-                            value={values.name}
+                            value={values.productBrand}
                             onChange={handleChange}
                             onBlur={handleBlur}
                           />
-                          {errors.name && touched.name ? (
+                          {errors.productBrand && touched.productBrand ? (
                             <small className="text-danger mt-1">
-                              {errors.name}
+                              {errors.productBrand}
                             </small>
                           ) : null}
                         </div>
@@ -203,19 +201,19 @@ const Registration = () => {
                       <div className="row mt-3">
                         <div className="col text-left">
                           <label htmlFor="first" className="form-label">
-                            mobile
+                            mrp
                           </label>
                           <input
-                            id="mobile"
-                            name="mobile"
+                            id="mrp"
+                            name="mrp"
                             className="form-control"
-                            value={values.mobile}
+                            value={values.mrp}
                             onChange={handleChange}
                             onBlur={handleBlur}
                           />
-                          {errors.mobile && touched.mobile ? (
+                          {errors.mrp && touched.mrp ? (
                             <small className="text-danger mt-1">
-                              {errors.mobile}
+                              {errors.mrp}
                             </small>
                           ) : null}
                         </div>
@@ -223,19 +221,19 @@ const Registration = () => {
                       <div className="row mt-3">
                         <div className="col text-left">
                           <label htmlFor="first" className="form-label">
-                            email
+                            size
                           </label>
                           <input
-                            id="email"
-                            name="email"
+                            id="size"
+                            name="size"
                             className="form-control"
-                            value={values.email}
+                            value={values.size}
                             onChange={handleChange}
                             onBlur={handleBlur}
                           />
-                          {errors.email && touched.email ? (
+                          {errors.size && touched.size ? (
                             <small className="text-danger mt-1">
-                              {errors.email}
+                              {errors.size}
                             </small>
                           ) : null}
                         </div>
@@ -243,19 +241,19 @@ const Registration = () => {
                       <div className="row mt-3">
                         <div className="col text-left">
                           <label htmlFor="first" className="form-label">
-                            product Id
+                          colour
                           </label>
                           <input
-                            id="productId"
-                            name="productId"
+                            id="colour"
+                            name="colour"
                             className="form-control"
-                            value={values.productId}
+                            value={values.colour}
                             onChange={handleChange}
                             onBlur={handleBlur}
                           />
-                          {errors.productId && touched.productId ? (
+                          {errors.colour && touched.colour ? (
                             <small className="text-danger mt-1">
-                              {errors.productId}
+                              {errors.colour}
                             </small>
                           ) : null}
                         </div>
@@ -263,19 +261,19 @@ const Registration = () => {
                       <div className="row mt-3">
                         <div className="col text-left">
                           <label htmlFor="first" className="form-label">
-                            Payment Mode
+                          Cost Price
                           </label>
                           <input
-                            id="paymentMode"
-                            name="paymentMode"
+                            id="costPrice"
+                            name="costPrice"
                             className="form-control"
-                            value={values.paymentMode}
+                            value={values.costPrice}
                             onChange={handleChange}
                             onBlur={handleBlur}
                           />
-                          {errors.paymentMode && touched.paymentMode ? (
+                          {errors.costPrice && touched.costPrice ? (
                             <small className="text-danger mt-1">
-                              {errors.paymentMode}
+                              {errors.costPrice}
                             </small>
                           ) : null}
                         </div>
@@ -283,61 +281,19 @@ const Registration = () => {
                       <div className="row mt-3">
                         <div className="col text-left">
                           <label htmlFor="first" className="form-label">
-                            Product Details
+                          Product Code
                           </label>
                           <input
-                            id="productDetails"
-                            name="productDetails"
+                            id="productCode"
+                            name="productCode"
                             className="form-control"
-                            value={values.productDetails}
+                            value={values.productCode}
                             onChange={handleChange}
                             onBlur={handleBlur}
                           />
-                          {errors.productDetails && touched.productDetails ? (
+                          {errors.productCode && touched.productCode ? (
                             <small className="text-danger mt-1">
-                              {errors.productDetails}
-                            </small>
-                          ) : null}
-                        </div>
-                      </div>
-
-                      <div className="row mt-3">
-                        <div className="col text-left">
-                          <label htmlFor="first" className="form-label">
-                            Sold By
-                          </label>
-                          <input
-                            id="soldBy"
-                            name="soldBy"
-                            className="form-control"
-                            value={values.soldBy}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                          />
-                          {errors.soldBy && touched.soldBy ? (
-                            <small className="text-danger mt-1">
-                              {errors.soldBy}
-                            </small>
-                          ) : null}
-                        </div>
-                      </div>
-
-                      <div className="row mt-3">
-                        <div className="col text-left">
-                          <label htmlFor="address" className="form-label">
-                            Address
-                          </label>
-                          <input
-                            id="address"
-                            name="address"
-                            className="form-control"
-                            value={values.address}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                          />
-                          {errors.address && touched.address ? (
-                            <small className="text-danger mt-1">
-                              {errors.address}
+                              {errors.productCode}
                             </small>
                           ) : null}
                         </div>
