@@ -20,6 +20,33 @@ const Registration = () => {
   const [alert, setAlert] = useState({ show: false, message: "" });
 
 
+  const [users, setUsers] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+      
+        const response = await fetch('https://script.google.com/macros/s/AKfycbznObZBx9MAipAiMnetVpFWjoHWmBwMqZRP_rZ52Ks6ym7KZeV3PkoYdxCRJrPXcShUfw/exec');
+        console.log("Response",response.ok)
+        if (response.ok) {
+          console.log("comlete response")
+          console.log("Response JSON",response.json())
+          const data = await response.json();
+
+          console.log("User list",data)
+          setUsers(data);
+        } else {
+          // Handle API request error
+        }
+      } catch (error) {
+        // Handle fetch error
+      }
+    };
+
+    fetchUsers();
+  }, []);
+
 
   useEffect(() => {
   }, []);
@@ -69,7 +96,7 @@ const Registration = () => {
 
 
   
-  
+ 
 
   const {
     values,
