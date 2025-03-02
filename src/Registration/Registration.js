@@ -4,7 +4,6 @@ import "./Registration.css";
 import { Button } from "react-bootstrap";
 import { registrationSchema } from "./RegistrationSchema";
 import vidhataImage from '../../src/billDashboard.png'; // Import the image
-import { Link } from "react-router-dom";
 // eslint-disable-next-line jsx-a11y/anchor-is-valid
 
 const initialValues = {
@@ -31,6 +30,27 @@ const Registration = () => {
   useEffect(() => {
     const fetchAllData = async () => {
       try {
+        const cacheKey = "productData"; // Unique key for storing data
+        const cacheExpiryKey = "productDataExpiry";
+        const cacheExpiryTime = 60 * 60 * 1000; // 1 hour in milliseconds
+
+        // Check if cached data exists and is still valid
+        const cachedData = localStorage.getItem(cacheKey);
+        const cachedExpiry = localStorage.getItem(cacheExpiryKey);
+
+        if (cachedData && cachedExpiry && Date.now() < parseInt(cachedExpiry)) {
+          console.log("Using Cached Data");
+          const parsedData = JSON.parse(cachedData);
+
+          setBrandNames(parsedData["Brand Name"] || []);
+          setColors(parsedData["Colour"] || []);
+          setSizes(parsedData["Size"] || []);
+          setProductCodes(parsedData["Product Code"] || []);
+          setPaymentModes(parsedData["Paid Via"] || ["Cash", "UPI", "Card"]);
+          return;
+        }
+
+        console.log("Fetching New Data...");
         const response = await fetch(
           "https://script.google.com/macros/s/AKfycbznObZBx9MAipAiMnetVpFWjoHWmBwMqZRP_rZ52Ks6ym7KZeV3PkoYdxCRJrPXcShUfw/exec"
         );
@@ -49,7 +69,11 @@ const Registration = () => {
           return acc;
         }, {});
 
-        // Now safely set the state with the correct key names
+        // Store in LocalStorage with expiry
+        localStorage.setItem(cacheKey, JSON.stringify(normalizedData));
+        localStorage.setItem(cacheExpiryKey, (Date.now() + cacheExpiryTime).toString());
+
+        // Update state with new data
         setBrandNames(normalizedData["Brand Name"] || []);
         setColors(normalizedData["Colour"] || []);
         setSizes(normalizedData["Size"] || []);
@@ -324,10 +348,10 @@ const Registration = () => {
                             Colors
                             </label>
                             <select
-                              id="colors"
-                              name="colors"
+                              id="color"
+                              name="color"
                               className="form-control"
-                              value={values.size}
+                              value={values.color}
                               onChange={handleChange}
                               onBlur={handleBlur}
                             >
@@ -405,23 +429,6 @@ const Registration = () => {
                             >
                               Submit
                             </Button>
-                            <div className="row mt-3">
-
-                              {<div className="col text-left">
-                                <Link to="/user-list">View Orders</Link>
-                                <br>
-                                </br>
-                                <br>
-                                </br>
-                                <Link to="/revenue-chart">View Earning</Link>
-                                <br>
-                                </br>
-                                <br>
-                                </br>
-                                <Link to="/make-payment">Make Order</Link>
-                              </div>}
-                            </div>
-
                           </div>
                         </div>
                       </form>
