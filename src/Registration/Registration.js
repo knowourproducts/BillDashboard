@@ -20,8 +20,8 @@ const Registration = () => {
   const [alert, setAlert] = useState({ show: false, message: "" });
 
 
-  const [users, setUsers] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
+  // const [users, setUsers] = useState([]);
+  // const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -35,7 +35,7 @@ const Registration = () => {
           const data = await response.json();
 
           console.log("User list",data)
-          setUsers(data);
+          // setUsers(data);
         } else {
           // Handle API request error
         }
@@ -45,6 +45,7 @@ const Registration = () => {
     };
 
     fetchUsers();
+
   }, []);
 
 
