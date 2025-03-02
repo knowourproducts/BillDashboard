@@ -7,25 +7,73 @@ import vidhataImage from '../../src/billDashboard.png'; // Import the image
 // eslint-disable-next-line jsx-a11y/anchor-is-valid
 
 const initialValues = {
+  productCode: "",
   productBrand: "",
+  productCategory:"",
   mrp: "",
   size: "",
   color: "",
-  costPrice: "",
-  productCode: "",
+  discountRate: "",
+  discountAmount: "",
+  paymentMode:  ""
 };
 
 const Registration = () => {
   const [alert, setAlert] = useState({ show: false, message: "" });
 
 
-  // const [users, setUsers] = useState([]);
-  // const [searchQuery, setSearchQuery] = useState("");
-  const [brandName, setBrandNames] = useState([]); // Use to Set Time Slot
-  const [paymentMode, setPaymentModes] = useState([]); // State to store seat type
+  const [productList, setProductList] = useState([]);
+  const [productCode, setProductCodes] = useState([]); // State to store seat type
+  const [productBrand, setBrandNames] = useState([]); // Use to Set Time Slot
   const [sizes, setSizes] = useState([]); // State to store seat type
   const [colors, setColors] = useState([]); // State to store seat type
-  const [productCode, setProductCodes] = useState([]); // State to store seat type
+  const [paymentMode, setPaymentModes] = useState([]); // State to store seat type
+
+  useEffect(() => {
+    const fetchProductList = async () => {
+      try {
+        const cacheKey = "productList"; // Local Storage Key
+        const cacheExpiryKey = "productListExpiry";
+        const cacheExpiryTime = 60 * 60 * 1000; // 1 Hour in milliseconds
+  
+        // Check if cached data exists and is still valid
+        const cachedData = localStorage.getItem(cacheKey);
+        const cachedExpiry = localStorage.getItem(cacheExpiryKey);
+  
+        if (cachedData && cachedExpiry && Date.now() < parseInt(cachedExpiry)) {
+          console.log("Using Cached Product List");
+          setProductList(JSON.parse(cachedData));
+          return;
+        }
+  
+        console.log("Fetching New Product List...");
+        const response = await fetch(
+          "https://script.google.com/macros/s/AKfycbw6qltraMzCkn1z4bQpGx69M4AtW7ju70zf1nPnEsPD-BoZX4mVRKP_-eU3MHN0BDWW-g/exec"
+        );
+  
+        if (!response.ok) {
+          console.error("Failed to fetch product list");
+          return;
+        }
+  
+        const data = await response.json();
+        console.log("Fetched Product List:", data);
+  
+        // Store in LocalStorage with expiry
+        localStorage.setItem(cacheKey, JSON.stringify(data));
+        localStorage.setItem(cacheExpiryKey, (Date.now() + cacheExpiryTime).toString());
+  
+        // Update state
+        setProductList(data);
+      } catch (error) {
+        console.error("Error fetching product list:", error);
+      }
+    };
+  
+    fetchProductList();
+  }, []);
+  
+
 
   useEffect(() => {
     const fetchAllData = async () => {
@@ -52,8 +100,7 @@ const Registration = () => {
 
         console.log("Fetching New Data...");
         const response = await fetch(
-          "https://script.google.com/macros/s/AKfycbznObZBx9MAipAiMnetVpFWjoHWmBwMqZRP_rZ52Ks6ym7KZeV3PkoYdxCRJrPXcShUfw/exec"
-        );
+          "https://script.google.com/macros/s/AKfycbznObZBx9MAipAiMnetVpFWjoHWmBwMqZRP_rZ52Ks6ym7KZeV3PkoYdxCRJrPXcShUfw/exec");
 
         if (!response.ok) {
           console.error("Failed to fetch data");
@@ -148,6 +195,7 @@ const Registration = () => {
     handleChange,
     handleSubmit,
     resetForm,
+    setValues: formikSetValues,
   } = useFormik({
     initialValues,
     validationSchema: registrationSchema,
@@ -162,10 +210,34 @@ const Registration = () => {
   });
 
 
+  const handleProductCodeChange = (selectedProductCode) => {
+    const selectedProduct = productList.find((product) => product.productCode  ===  selectedProductCode);
+
+    // Clear form values if no user is found
+    if (!selectedProduct) {
+      formikSetValues(initialValues);
+      return;
+    }
+
+
+    // Fill the form fields with selected user data
+    formikSetValues({
+      ...values,
+      productCode: selectedProduct.productCode, // Update the id field with the selected user ID
+      mrp: selectedProduct.mrp || "",
+      discountRate: selectedProduct.discountRate || "",
+      productCategory: selectedProduct.category || "",
+      discountAmount: selectedProduct.discountPrice || "",
+    });
+  };
+
+
 
 
 
   const postData = async (formValues) => {
+
+    console.log("Form Values", formValues)
     try {
       const currentDate = new Date();
       const year = currentDate.getFullYear();
@@ -180,8 +252,8 @@ const Registration = () => {
 
 
 
-      const url = 'https://script.google.com/macros/s/AKfycbx4WrXjWWMd_7hLXdNvOgDnhFZPQArTcZcYrZjVzSTE_NX4pxpow5WJLPvEg48DeEVFhw/exec?action=addFormData'; // Replace with your API endpoint
-      const dataObject = { date: dateString, brandName: formValues.productBrand, mrp: formValues.mrp, size: formValues.size, colour: formValues.colour, costPrice: formValues.costPrice, productCode: formValues.productCode }; // Replace with your data object
+      const url = 'https://script.google.com/macros/s/AKfycbyjIAMqd4VIvV3zDOTy-t3iwHTx-mRj_f7sIFeMGMbkLoSlZX-50WG0f9hjUd5qfZyy6Q/exec?action=addFormData'; // Replace with your API endpoint
+      const dataObject = { date: dateString, brandName: formValues.productBrand,productCategory: formValues.productCategory, mrp: formValues.mrp, size: formValues.size, color: formValues.color,discountRate: formValues.discountRate, discountPrice: formValues.discountAmount, productCode: formValues.productCode,paymentMode: formValues.paymentMode }; // Replace with your data object
       console.log("Date Object", dataObject)
       const requestOptions = {
         redirect: "follow",
@@ -245,7 +317,7 @@ const Registration = () => {
                 <div class="card-body p-md-5">
                   <div class="row justify-content-center">
                     <div class="col-md-10 col-lg-6 col-xl-5 order-2 order-lg-1">
-                      <p class="text-center h1 fw-bold mb-5 mt-4">Bill Dashboard</p>
+                      <p class="text-center h1 fw-bold mb-5 mt-4">Siya Collection Bill Dashboard</p>
                       <form onSubmit={handleSubmit}>
                       <div className="row mt-3">
                           <div className="col text-left">
@@ -257,7 +329,10 @@ const Registration = () => {
                               name="productCode"
                               className="form-control"
                               value={values.productCode}
-                              onChange={handleChange}
+                              onChange= { (e) => {
+                                handleChange(e);
+                                handleProductCodeChange(e.target.value);
+                              }}
                               onBlur={handleBlur}
                             >
                               <option value="">Select Product Code</option>
@@ -278,25 +353,46 @@ const Registration = () => {
                               Brand Name
                             </label>
                             <select
-                              id="brandName"
-                              name="brandName"
+                              id="productBrand"
+                              name="productBrand"
                               className="form-control"
-                              value={values.brandName}
+                              value={values.productBrand}
                               onChange={handleChange}
                               onBlur={handleBlur}
                             >
                               <option value="">Select Brand Name</option>
-                              {brandName.map((type, index) => (
+                              {productBrand.map((type, index) => (
                                 <option key={index} value={type}>
                                   {type}
                                 </option>
                               ))}
                             </select>
-                            {errors.brandName && touched.brandName ? (
-                              <small className="text-danger mt-1">{errors.brandName}</small>
+                            {errors.productBrand && touched.productBrand ? (
+                              <small className="text-danger mt-1">{errors.productBrand}</small>
                             ) : null}
                           </div>
                         </div>
+
+                        <div className="row mt-3">
+                          <div className="col text-left">
+                            <label htmlFor="first" className="form-label">
+                             Product Category
+                            </label>
+                            <input
+                              id="productCategory"
+                              name="productCategory"
+                              className="form-control"
+                              value={values.productCategory}
+                              onChange={handleChange}
+                              onBlur={handleBlur}
+                            />
+                            {errors.productCategory && touched.productCategory ? (
+                              <small className="text-danger mt-1">
+                                {errors.productCategory}
+                              </small>
+                            ) : null}
+                          </div>
+                        </div> 
                         <div className="row mt-3">
                           <div className="col text-left">
                             <label htmlFor="first" className="form-label">
@@ -367,26 +463,50 @@ const Registration = () => {
                             ) : null}
                           </div>
                         </div>
+
                         <div className="row mt-3">
                           <div className="col text-left">
                             <label htmlFor="first" className="form-label">
-                              Cost Price
+                              Discount Rate
                             </label>
                             <input
-                              id="costPrice"
-                              name="costPrice"
+                              id="discountRate"
+                              name="discountRate"
                               className="form-control"
-                              value={values.costPrice}
+                              value={values.discountRate}
                               onChange={handleChange}
                               onBlur={handleBlur}
                             />
-                            {errors.costPrice && touched.costPrice ? (
+                            {errors.discountRate && touched.discountRate ? (
                               <small className="text-danger mt-1">
-                                {errors.costPrice}
+                                {errors.discountRate}
                               </small>
                             ) : null}
                           </div>
                         </div>
+
+
+                        <div className="row mt-3">
+                          <div className="col text-left">
+                            <label htmlFor="first" className="form-label">
+                              Discount Amount
+                            </label>
+                            <input
+                              id="discountAmount"
+                              name="discountAmount"
+                              className="form-control"
+                              value={values.discountAmount}
+                              onChange={handleChange}
+                              onBlur={handleBlur}
+                            />
+                            {errors.discountAmount && touched.discountAmount ? (
+                              <small className="text-danger mt-1">
+                                {errors.discountAmount}
+                              </small>
+                            ) : null}
+                          </div>
+                        </div>
+
                         <div className="row mt-3">
                           <div className="col text-left">
                             <label htmlFor="type" className="form-label">
