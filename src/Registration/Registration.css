@@ -17,6 +17,10 @@
   margin-left: 10px;
 }
 
+form {
+  float: left;
+}
+
 .registration-container {
     display: flex;
     align-items: center;
