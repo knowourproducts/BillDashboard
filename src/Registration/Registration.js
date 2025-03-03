@@ -1,5 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,useRef } from "react";
 import { useFormik } from "formik";
+import { jsPDF } from "jspdf";
+import html2canvas from "html2canvas";
 import "./Registration.css";
 import { Button } from "react-bootstrap";
 import { registrationSchema } from "./RegistrationSchema";
@@ -20,6 +22,7 @@ const initialValues = {
 
 const Registration = () => {
   const [alert, setAlert] = useState({ show: false, message: "" });
+  const pdfRef = useRef(null);
 
 
   const [productList, setProductList] = useState([]);
@@ -72,7 +75,60 @@ const Registration = () => {
   
     fetchProductList();
   }, []);
+
+  const generatePDF = async (formValues) => {
+    const input = pdfRef.current;
+    const canvas = await html2canvas(input, { scale: 2 });
+    const imgData = canvas.toDataURL("image/png");
+
+    const pdf = new jsPDF({
+      orientation: "portrait",
+      unit: "mm",
+      format: [48, 100], // 48mm width, 100mm height
+    });
+
+    pdf.addImage(imgData, "PNG", 0, 0, 48, (canvas.height * 48) / canvas.width);
+
+    // Open the PDF in a new browser tab
+    const pdfBlob = pdf.output("blob");
+    const pdfUrl = URL.createObjectURL(pdfBlob);
+    window.open(pdfUrl); // Open in a new tab
+
+    // Optional: Auto Print the PDF
+    const iframe = document.createElement("iframe");
+    iframe.style.display = "none";
+    document.body.appendChild(iframe);
+    iframe.src = pdfUrl;
+    iframe.onload = () => {
+      iframe.contentWindow.print();
+    };
+    // const pdfBlob = pdf.output("blob");
+
+    // await uploadPDFToDrive(pdfBlob);
+  };
   
+
+  // const uploadPDFToDrive = async (pdfBlob) => {
+  //   const formData = new FormData();
+  //   formData.append("file", pdfBlob, "receipt.pdf");
+
+  //   try {
+  //     const response = await fetch(
+  //       "https://script.google.com/macros/s/AKfycbyvfLUypdQ6g7QEXH5wsH2sgeJRUIcxZVR9wJKos1ku3wkMbwHI910SiOjr1x_2m3vj9Q/exec", // Replace with your Google Apps Script URL
+  //       {
+  //         method: "POST",
+  //         body: formData,
+  //       }
+  //     );
+
+  //     const data = await response.json();
+  //     setAlert({ show: true, message: data.message });
+
+  //     setTimeout(() => setAlert({ show: false, message: "" }), 3000);
+  //   } catch (error) {
+  //     console.error("Error uploading PDF:", error);
+  //   }
+  // };
 
 
   useEffect(() => {
@@ -199,10 +255,11 @@ const Registration = () => {
   } = useFormik({
     initialValues,
     validationSchema: registrationSchema,
-    onSubmit: (values, action) => {
+    onSubmit: async (values, action) => {
       console.log("Registration data to be sent")
 
       console.log("values", values)
+      await generatePDF(values);
 
       postData(values)
       action.resetForm();
@@ -315,11 +372,18 @@ const Registration = () => {
             <div class="col-12">
               <div class="card text-black" style={{ borderRadius: "25px" }}>
                 <div class="card-body p-md-5">
-                  <div class="row justify-content-center">
-                    <div class="col-md-10 col-lg-6 col-xl-5 order-2 order-lg-1">
+                  <div class="row">
+                    <div class="col-md-7 col-lg-6 col-xl-5 order-2 order-lg-1">
                       <p class="text-center h1 fw-bold mb-5 mt-4">Siya Collection Bill Dashboard</p>
-                      <form onSubmit={handleSubmit}>
-                      <div className="row mt-3">
+                      <div class="col-md-10 col-lg-6 col-xl-7 d-flex align-items-center order-1 order-lg-2">
+                      <img
+                        src={vidhataImage} // Use the imported image
+                        class="img-fluid"
+                        alt="Shel Digtal Library"
+                      />
+                    </div>
+                      <form  class="col-md-7" onSubmit={handleSubmit}>
+                      <div  className="row mt-3">
                           <div className="col text-left">
                             <label htmlFor="type" className="form-label">
                               Product Code
@@ -552,14 +616,23 @@ const Registration = () => {
                           </div>
                         </div>
                       </form>
+                        {/* PDF Preview Section */}
+    <div className="col-md-5 d-flex align-items-center justify-content-center">
+      <div ref={pdfRef}  classNam="pdf-preview" style={{ width: "48mm", padding: "10px", background: "#fff" }}>
+        <h3>Bill Receipt</h3>
+        <p><b>Product Code:</b> {values.productCode}</p>
+        <p><b>Brand:</b> {values.productBrand}</p>
+        <p><b>Category:</b> {values.productCategory}</p>
+        <p><b>MRP:</b> ₹{values.mrp}</p>
+        <p><b>Size:</b> {values.size}</p>
+        <p><b>Color:</b> {values.color}</p>
+        <p><b>Discount Rate:</b> {values.discountRate}%</p>
+        <p><b>Discount Amount:</b> ₹{values.discountAmount}</p>
+        <p><b>Payment Mode:</b> {values.paymentMode}</p>
+      </div>
+    </div>
                     </div>
-                    <div class="col-md-10 col-lg-6 col-xl-7 d-flex align-items-center order-1 order-lg-2">
-                      <img
-                        src={vidhataImage} // Use the imported image
-                        class="img-fluid"
-                        alt="Shel Digtal Library"
-                      />
-                    </div>
+                    
                   </div>
                 </div>
               </div>
