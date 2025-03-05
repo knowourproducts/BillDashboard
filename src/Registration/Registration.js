@@ -85,7 +85,7 @@ const Registration = () => {
     const pdf = new jsPDF({
       orientation: "portrait",
       unit: "mm",
-      format: [48, 100], // 48mm width, 100mm height
+      format: [48, 135], // 48mm width, 100mm height
     });
 
     pdf.addImage(imgData, "PNG", 0, 0, 48, (canvas.height * 48) / canvas.width);
@@ -157,7 +157,7 @@ const Registration = () => {
 
         console.log("Fetching New Data...");
         const response = await fetch(
-          "https://script.google.com/macros/s/AKfycbznObZBx9MAipAiMnetVpFWjoHWmBwMqZRP_rZ52Ks6ym7KZeV3PkoYdxCRJrPXcShUfw/exec");
+          "https://script.google.com/macros/s/AKfycbxkrqsfXX3P318sdUaA8KTCE-3Ohh3ubLGS7q5g0n5dGpuQo7Adi-9Ay1ZsxuWJD_L8yQ/exec?action=addFormData");
 
         if (!response.ok) {
           console.error("Failed to fetch data");
@@ -310,7 +310,7 @@ const Registration = () => {
 
 
 
-      const url = 'https://script.google.com/macros/s/AKfycbzrYA34hmEuGwiD3LtFluCeD5sWvEsgYrWA_c--sDXG0ksm4QWX4Qzir8qGRtcLgOiZ2Q/exec?action=addFormData'; // Replace with your API endpoint
+      const url = 'https://script.google.com/macros/s/AKfycbxkrqsfXX3P318sdUaA8KTCE-3Ohh3ubLGS7q5g0n5dGpuQo7Adi-9Ay1ZsxuWJD_L8yQ/exec?action=addFormData'; // Replace with your API endpoint
       const dataObject = { date: dateString, brandName: formValues.productBrand,productCategory: formValues.productCategory, mrp: formValues.mrp, size: formValues.size, color: formValues.color,discountRate: formValues.discountRate, discountPrice: formValues.discountAmount, productCode: formValues.productCode,paymentMode: formValues.paymentMode,name: formValues.customerName,mobile: formValues.customerMobile }; // Replace with your data object
       console.log("Date Object", dataObject)
       const requestOptions = {

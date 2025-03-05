@@ -3,15 +3,6 @@
   margin-top: 20px;
 }
 
-.pdf-preview {
-  float: right;
-  width: 48mm;
-  padding: 10px;
-  background: #fff;
-  border: 1px solid #ddd;
-  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-  text-align: left;
-}
 
 .ml-2 {
   margin-left: 10px;
