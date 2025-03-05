@@ -5,10 +5,11 @@ import html2canvas from "html2canvas";
 import "./Registration.css";
 import { Button } from "react-bootstrap";
 import { registrationSchema } from "./RegistrationSchema";
-import vidhataImage from '../../src/billDashboard.png'; // Import the image
 // eslint-disable-next-line jsx-a11y/anchor-is-valid
 
 const initialValues = {
+  customerName: "",
+  customerMobile: "",
   productCode: "",
   productBrand: "",
   productCategory:"",
@@ -309,8 +310,8 @@ const Registration = () => {
 
 
 
-      const url = 'https://script.google.com/macros/s/AKfycbyjIAMqd4VIvV3zDOTy-t3iwHTx-mRj_f7sIFeMGMbkLoSlZX-50WG0f9hjUd5qfZyy6Q/exec?action=addFormData'; // Replace with your API endpoint
-      const dataObject = { date: dateString, brandName: formValues.productBrand,productCategory: formValues.productCategory, mrp: formValues.mrp, size: formValues.size, color: formValues.color,discountRate: formValues.discountRate, discountPrice: formValues.discountAmount, productCode: formValues.productCode,paymentMode: formValues.paymentMode }; // Replace with your data object
+      const url = 'https://script.google.com/macros/s/AKfycbzrYA34hmEuGwiD3LtFluCeD5sWvEsgYrWA_c--sDXG0ksm4QWX4Qzir8qGRtcLgOiZ2Q/exec?action=addFormData'; // Replace with your API endpoint
+      const dataObject = { date: dateString, brandName: formValues.productBrand,productCategory: formValues.productCategory, mrp: formValues.mrp, size: formValues.size, color: formValues.color,discountRate: formValues.discountRate, discountPrice: formValues.discountAmount, productCode: formValues.productCode,paymentMode: formValues.paymentMode,name: formValues.customerName,mobile: formValues.customerMobile }; // Replace with your data object
       console.log("Date Object", dataObject)
       const requestOptions = {
         redirect: "follow",
@@ -383,6 +384,46 @@ const Registration = () => {
                       /> */}
                     </div>
                       <form  class="col-md-7" onSubmit={handleSubmit}>
+                      <div className="row mt-3">
+                          <div className="col text-left">
+                            <label htmlFor="first" className="form-label">
+                              Customer Name
+                            </label>
+                            <input
+                              id="customerName"
+                              name="customerName"
+                              className="form-control"
+                              value={values.customerName}
+                              onChange={handleChange}
+                              onBlur={handleBlur}
+                            />
+                            {errors.customerName && touched.customerName ? (
+                              <small className="text-danger mt-1">
+                                {errors.customerName}
+                              </small>
+                            ) : null}
+                          </div>
+                        </div>
+                        <div className="row mt-3">
+                          <div className="col text-left">
+                            <label htmlFor="first" className="form-label">
+                              Customer Mobile
+                            </label>
+                            <input
+                              id="customerMobile"
+                              name="customerMobile"
+                              className="form-control"
+                              value={values.customerMobile}
+                              onChange={handleChange}
+                              onBlur={handleBlur}
+                            />
+                            {errors.customerMobile && touched.customerMobile ? (
+                              <small className="text-danger mt-1">
+                                {errors.customerMobile}
+                              </small>
+                            ) : null}
+                          </div>
+                        </div>
                       <div  className="row mt-3">
                           <div className="col text-left">
                             <label htmlFor="type" className="form-label">
@@ -617,22 +658,65 @@ const Registration = () => {
                         </div>
                       </form>
                         {/* PDF Preview Section */}
-    <div className="col-md-5 d-flex align-items-center justify-content-center">
-      <div ref={pdfRef}  classNam="pdf-preview" style={{ width: "48mm", padding: "10px", background: "#fff" }}>
-        <h5>Siya Collection</h5>
-        <p>Mayur Vihar Phase 3</p>
-        <p><i>110096</i></p>
-        <p><b>Product Code:</b> {values.productCode}</p>
-        <p><b>Brand:</b> {values.productBrand}</p>
-        <p><b>Category:</b> {values.productCategory}</p>
-        <p><b>MRP:</b> ₹{values.mrp}</p>
-        <p><b>Size:</b> {values.size}</p>
-        <p><b>Color:</b> {values.color}</p>
-        <p><b>Discount Rate:</b> {values.discountRate}%</p>
-        <p><b>Discount Amount:</b> ₹{values.discountAmount}</p>
-        <p><b>Payment Mode:</b> {values.paymentMode}</p>
-      </div>
+   
+   <div className="col-md-5 d-flex align-items-center justify-content-center">
+  <div ref={pdfRef} className="receipt">
+    <h2 className="store-name">Siya's</h2>
+    <p>A 1190 Mayur Vihar Phase 3,</p>
+    <p>Delhi-110096</p>
+    <p>Mobile No.- 8800854817</p>
+    <hr className="dashed-line" />
+
+    <div className="bill-info">
+      <p><b>Bill</b> <span>{new Date().toLocaleString()}</span></p>
     </div>
+
+    <hr className="dashed-line" />
+    <p><b>Customer Details</b></p>
+
+    <hr className="dashed-line" />
+
+<div className="bill-info">
+  <p><b>Name:</b> <span>{values.customerName}</span></p>
+</div>
+<div className="bill-info">
+  <p><b>Mobile:</b> <span>{values.customerMobile}</span></p>
+</div>
+
+<hr className="dashed-line" />
+
+    <table className="receipt-table">
+      <thead>
+        <tr>
+          <th>Item x Qty</th>
+          <th>Rate</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>x 1</td>
+          <td>₹{values.discountAmount}</td>
+        </tr>
+        <tr>
+        <td>Brand(<span><i>{values.productBrand}-{values.productCategory})</i></span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <hr className="dashed-line" />
+
+    <div className="total-section">
+      <p>Discounted Rate <span>₹{values.discountAmount}</span></p>
+      <p className="grand-total"> Grand Total <span>₹{values.discountAmount}</span></p>
+    </div>
+
+    <hr className="dashed-line" />
+
+    <p className="thank-you">Thank You</p>
+    <p className="visit-again">Visit Again!!!!!</p>
+  </div>
+</div>
+
     
                     </div>
                     

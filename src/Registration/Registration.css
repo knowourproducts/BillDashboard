@@ -21,6 +21,77 @@ form {
   float: left;
 }
 
+.receipt {
+  float: right;
+  width: 48mm;
+  padding: 10px;
+  background: #fff;
+  border: 1px solid #ddd;
+  text-align: center;
+  font-family: "Courier New", monospace;
+  font-size: 11px;
+  line-height: 1.4;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.receipt > p {
+  padding: 0px;
+  margin: 2px;
+}
+
+.store-name {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.bill-info {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+}
+.bill-info > p {
+  padding: 0px;
+  margin: 2px;
+}
+
+.receipt-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.receipt-table th, .receipt-table td {
+  text-align: left;
+  padding: 4px;
+}
+
+.dashed-line {
+  border: none;
+  border-top: 1px dashed black;
+  margin: 10px 0;
+}
+
+.total-section p {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+}
+
+.grand-total {
+  font-size: 14px;
+}
+
+.thank-you {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.visit-again {
+  font-size: 12px;
+  font-weight: bold;
+}
+
+
 .registration-container {
     display: flex;
     align-items: center;
