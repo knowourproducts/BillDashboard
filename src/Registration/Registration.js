@@ -694,11 +694,11 @@ const Registration = () => {
       </thead>
       <tbody>
         <tr>
-          <td>x 1</td>
-          <td>₹{values.discountAmount}</td>
+          <td>1</td>
+          <td>₹{values.mrp}</td>
         </tr>
         <tr>
-        <td>Brand(<span><i>{values.productBrand}-{values.productCategory})</i></span></td>
+        <td><span><i>{values.productBrand}-{values.productCategory}</i></span></td>
         </tr>
       </tbody>
     </table>
@@ -706,7 +706,7 @@ const Registration = () => {
     <hr className="dashed-line" />
 
     <div className="total-section">
-      <p>Discounted Rate <span>₹{values.discountAmount}</span></p>
+      <p>Discount <span>{(values.discountRate)*100}%</span></p>
       <p className="grand-total"> Grand Total <span>₹{values.discountAmount}</span></p>
     </div>
 
