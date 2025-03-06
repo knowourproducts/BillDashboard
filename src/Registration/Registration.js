@@ -157,7 +157,7 @@ const Registration = () => {
 
         console.log("Fetching New Data...");
         const response = await fetch(
-          "https://script.google.com/macros/s/AKfycbxkrqsfXX3P318sdUaA8KTCE-3Ohh3ubLGS7q5g0n5dGpuQo7Adi-9Ay1ZsxuWJD_L8yQ/exec?action=addFormData");
+          "https://script.google.com/macros/s/AKfycbznObZBx9MAipAiMnetVpFWjoHWmBwMqZRP_rZ52Ks6ym7KZeV3PkoYdxCRJrPXcShUfw/exec");
 
         if (!response.ok) {
           console.error("Failed to fetch data");
