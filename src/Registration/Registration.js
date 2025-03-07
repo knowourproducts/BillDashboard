@@ -661,10 +661,10 @@ const Registration = () => {
    
    <div className="col-md-5 d-flex align-items-center justify-content-center">
   <div ref={pdfRef} className="receipt">
-    <h2 className="store-name">Siya's</h2>
-    <p>A 1190 Mayur Vihar Phase 3,</p>
-    <p>Delhi-110096</p>
-    <p>Mobile No.- 8800854817</p>
+    <h1 className="store-name">Siya's</h1>
+    <p><b>A 1190 Mayur Vihar Phase 3,</b></p>
+    <p><b>Delhi-110096</b></p>
+    <p><b>Mobile No.- 8800854817</b></p>
     <hr className="dashed-line" />
 
     <div className="bill-info">

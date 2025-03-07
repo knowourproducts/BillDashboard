@@ -58,7 +58,7 @@ form {
 
 .dashed-line {
   border: none;
-  border-top: 1px dashed black;
+  border-top: 2px dashed black;
   margin: 10px 0;
 }
 
