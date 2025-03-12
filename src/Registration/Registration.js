@@ -300,7 +300,7 @@ const Registration = () => {
       const currentDate = new Date();
       const dateString = currentDate.toISOString().slice(0, 19).replace("T", " ");
   
-      const url = "https://script.google.com/macros/library/d/1Xe6uW6h7oJKs5TdH-dHMjmcCCAv8QUUxzwXe_IJfn5qUBObj6i1outE9/1?action=addFormData";
+      const url = "https://script.google.com/macros/s/AKfycby9g3lp701Kad95DFCW_FFkShgBrip7eqZERor4Gzdy3TjB1S70wmRE-QLLV_FEtF5PBA/exec?action=addFormData";
       
       // Ensure formValues is valid
       if (!formValues || Object.keys(formValues).length === 0) {
