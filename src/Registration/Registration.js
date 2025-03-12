@@ -294,25 +294,37 @@ const Registration = () => {
 
 
   const postData = async (formValues) => {
-
-    console.log("Form Values", formValues)
+    console.log("Form Values:", formValues);
+    
     try {
       const currentDate = new Date();
-      const year = currentDate.getFullYear();
-      const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-      const day = String(currentDate.getDate()).padStart(2, '0');
-      const hours = String(currentDate.getHours()).padStart(2, '0');
-      const minutes = String(currentDate.getMinutes()).padStart(2, '0');
-      const seconds = String(currentDate.getSeconds()).padStart(2, '0');
-
-      const dateString = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-
-
-
-
-      const url = 'https://script.google.com/macros/s/AKfycbxkrqsfXX3P318sdUaA8KTCE-3Ohh3ubLGS7q5g0n5dGpuQo7Adi-9Ay1ZsxuWJD_L8yQ/exec?action=addFormData'; // Replace with your API endpoint
-      const dataObject = { date: dateString, brandName: formValues.productBrand,productCategory: formValues.productCategory, mrp: formValues.mrp, size: formValues.size, color: formValues.color,discountRate: formValues.discountRate, discountPrice: formValues.discountAmount, productCode: formValues.productCode,paymentMode: formValues.paymentMode,name: formValues.customerName,mobile: formValues.customerMobile }; // Replace with your data object
-      console.log("Date Object", dataObject)
+      const dateString = currentDate.toISOString().slice(0, 19).replace("T", " ");
+  
+      const url = "https://script.google.com/macros/library/d/1Xe6uW6h7oJKs5TdH-dHMjmcCCAv8QUUxzwXe_IJfn5qUBObj6i1outE9/1?action=addFormData";
+      
+      // Ensure formValues is valid
+      if (!formValues || Object.keys(formValues).length === 0) {
+        console.error("Error: formValues is empty or undefined.");
+        return;
+      }
+  
+      const dataObject = {
+        date: dateString,
+        brandName: formValues.productBrand,
+        productCategory: formValues.productCategory,
+        mrp: formValues.mrp,
+        size: formValues.size,
+        color: formValues.color,
+        discountRate: formValues.discountRate,
+        discountPrice: formValues.discountAmount,
+        productCode: formValues.productCode,
+        paymentMode: formValues.paymentMode,
+        name: formValues.customerName,
+        mobile: formValues.customerMobile,
+      };
+  
+      console.log("Data Object to Send:", dataObject);
+  
       const requestOptions = {
         redirect: "follow",
         method: 'POST',
@@ -323,20 +335,21 @@ const Registration = () => {
         body: JSON.stringify(dataObject),
       };
 
-      console.log("Registration data to be sent", dataObject)
+      console.log("Registration data to be sent",dataObject)
 
-      const response = await fetch(url, requestOptions);
+       const response = await fetch(url, requestOptions);
+  
       setAlert({ show: true, message: "Product Details Successfully Saved" });
-
       console.log(response)
-      // Handle the response data as needed
-      // Hide the alert after a few seconds (optional)
+
       setTimeout(() => {
         setAlert({ show: false, message: "" });
-      }, 3000); // Adjust the timeout as needed
-    } catch (err) {
+      }, 3000);
+    } catch (error) {
+      console.error("Fetch Error:", error.message);
     }
   };
+  
 
   return (
     <div>
