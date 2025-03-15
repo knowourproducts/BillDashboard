@@ -26,6 +26,8 @@ const Registration = () => {
   const pdfRef = useRef(null);
 
   // my registartion changes
+    // my registartion changes 2 and 3
+
 
   const [productList, setProductList] = useState([]);
   const [productCode, setProductCodes] = useState([]); // State to store seat type
