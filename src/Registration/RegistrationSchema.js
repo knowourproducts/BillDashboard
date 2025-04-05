@@ -1,12 +1,12 @@
 import * as Yup from "yup";
 
 export const registrationSchema = Yup.object({
-  customerName: Yup.string().min(1).max(50).required("name is required"),
-  customerMobile: Yup.string().min(10).max(10).required("mobile number is required"),
+  customerName: Yup.string().min(1).max(50).optional(),
+  customerMobile: Yup.string().min(10).max(10).optional(),
   productCode: Yup.string().min(1).max(50).optional(),
-  productBrand: Yup.string().min(1).max(20).required("brand name is required"),
-  productCategory: Yup.string().min(1).max(20).required("category is required"),
-  mrp: Yup.string().min(1).max(30).required("mrp is required"),
+  productBrand: Yup.string().min(1).max(20).optional(),
+  productCategory: Yup.string().min(1).max(100).optional(),
+  mrp: Yup.string().min(1).max(30).optional(),
   size: Yup.string().min(1).max(50).optional(),
   color: Yup.string().min(1).max(50).optional(),
   paymentMode: Yup.string().min(1).max(50).optional(),

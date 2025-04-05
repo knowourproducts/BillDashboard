@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, forwardRef } from "react";
 import { useFormik } from "formik";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
@@ -22,7 +22,6 @@ const initialValues = {
   color: "",
   discountRate: "",
   discountAmount: "",
-  paymentMode: ""
 };
 
 const Registration = () => {
@@ -39,7 +38,18 @@ const Registration = () => {
   const [sizes, setSizes] = useState([]); // State to store seat type
   const [colors, setColors] = useState([]); // State to store seat type
   const [paymentMode, setPaymentModes] = useState([]); // State to store seat type
+  const [cartItems, setCartItems] = useState([]);
+  const totalAmount = cartItems.reduce((acc, item) => acc + parseFloat(item.discountAmount || 0), 0);
+  const [selectedPaymentMode, setSelectedPaymentMode] = useState("");
 
+  const handleRemoveFromCart = (indexToRemove) => {
+    const updatedCart = cartItems.filter((_, index) => index !== indexToRemove);
+    setCartItems(updatedCart);
+  };
+
+
+
+  
   useEffect(() => {
     const fetchProductList = async () => {
       try {
@@ -250,7 +260,6 @@ const Registration = () => {
 
 
 
-
   const {
     values,
     errors,
@@ -263,16 +272,53 @@ const Registration = () => {
   } = useFormik({
     initialValues,
     validationSchema: registrationSchema,
-    onSubmit: async (values, action) => {
-      console.log("Registration data to be sent")
-
-      console.log("values", values)
-      await generatePDF(values);
-
-      postData(values)
-      action.resetForm();
-    },
+    onSubmit: async (_, actions) => {
+      if (cartItems.length === 0) {
+        alert("Please add at least one product to the cart before submitting.");
+        return;
+      }
+    
+      await generatePDF(values); // You can still use `values` to access customer info
+      await postData(values);    // But send the entire cart to API inside postData
+      actions.resetForm();
+      setCartItems([]);          // Clear cart after submission
+    }
+    
   });
+  const maxDiscountRate = cartItems.length > 1
+  ? parseFloat(Math.max(...cartItems.map(item => parseFloat(item.discountRate || 0))).toFixed(2))
+  : cartItems.length === 1
+    ? parseFloat(parseFloat(cartItems[0].discountRate || 0).toFixed(1))
+    : parseFloat(parseFloat(values.discountRate || 0).toFixed(1));
+
+
+
+  const addToCart = () => {
+    if (!values.productCode || !values.mrp) {
+      alert("Please select a product and MRP before adding to cart.");
+      return;
+    }
+  
+    const item = { ...values };
+  
+    setCartItems(prev => [...prev, item]);
+  
+    // Reset only product fields, retain customer info
+    formikSetValues({
+      customerName: values.customerName,
+      customerMobile: values.customerMobile,
+      productCode: "",
+      productBrand: "",
+      productCategory: "",
+      mrp: "",
+      size: "",
+      color: "",
+      discountRate: "",
+      discountAmount: "",
+      paymentMode: ""
+    });
+  };
+  
 
 
   const handleProductCodeChange = (selectedProductCode) => {
@@ -307,7 +353,7 @@ const Registration = () => {
 
       let newRate = "";
       if (!isNaN(mrp) && mrp > 0 && !isNaN(discountAmount)) {
-        newRate = (discountAmount / mrp).toFixed(2); // decimal format like 0.25
+        newRate = (discountAmount / mrp).toFixed(1); // decimal format like 0.25
       }
 
       formikSetValues((prev) => ({
@@ -332,7 +378,7 @@ const Registration = () => {
       const currentDate = new Date();
       const dateString = currentDate.toISOString().slice(0, 19).replace("T", " ");
 
-      const url = "https://script.google.com/macros/s/AKfycby9g3lp701Kad95DFCW_FFkShgBrip7eqZERor4Gzdy3TjB1S70wmRE-QLLV_FEtF5PBA/exec?action=addFormData";
+      const url = "https://script.google.com/macros/s/AKfycbw3P8eE3AsGOHHH_NE9YTkxrybV_dv8B8j-YZmNHaOXAnbCtXmOd6lNlgL1eo8JXNQe0g/exec?action=addFormData";
 
       // Ensure formValues is valid
       if (!formValues || Object.keys(formValues).length === 0) {
@@ -340,20 +386,30 @@ const Registration = () => {
         return;
       }
 
-      const dataObject = {
-        date: dateString,
-        brandName: formValues.productBrand,
-        productCategory: formValues.productCategory,
-        mrp: formValues.mrp,
-        size: formValues.size,
-        color: formValues.color,
-        discountRate: formValues.discountRate,
-        discountPrice: formValues.discountAmount,
-        productCode: formValues.productCode,
-        paymentMode: formValues.paymentMode,
-        name: formValues.customerName,
-        mobile: formValues.customerMobile,
-      };
+       // ✅ Calculate grandTotal (sum of all discountAmount in cart)
+    const grandTotal = cartItems.reduce(
+      (acc, item) => acc + parseFloat(item.discountAmount || 0),
+      0
+    ).toFixed(1);
+
+
+     // Pipe-separated fields from cartItems
+const dataObject = {
+  date: dateString,
+  brandName: cartItems.map(item => item.productBrand || "").join(" | "),
+  productCategory: cartItems.map(item => item.productCategory || "").join(" | "),
+  mrp: cartItems.map(item => item.mrp || "").join(" | "),
+  size: cartItems.map(item => item.size || "").join(" | "),
+  color: cartItems.map(item => item.color || "").join(" | "),
+  discountRate: cartItems.map(item => item.discountRate || "").join(" | "),
+  discountPrice: cartItems.map(item => item.discountAmount || "").join(" | "),
+  productCode: cartItems.map(item => item.productCode || "").join(" | "),
+  paymentMode: selectedPaymentMode,
+  name: formValues.customerName,
+  mobile: formValues.customerMobile,
+  grandTotal: grandTotal, // always with 2 decimals
+};
+
 
       console.log("Data Object to Send:", dataObject);
 
@@ -666,32 +722,30 @@ const Registration = () => {
                             ) : null}
                           </div>
                         </div>
+                        <div className="cart-list mt-4">
+  <h5>Cart Items</h5>
+  {cartItems.length === 0 && <p>No items in cart.</p>}
+  <ul className="list-group">
+    {cartItems.map((item, index) => (
+      <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
+        <div>
+          <strong>{item.productCode}</strong> - ₹{item.discountAmount.toFixed(1)}
+          <br />
+          <small>{item.productBrand} / {item.productCategory}</small>
+          <small><span>    </span>{item.discountRate.toFixed(1) * 100}%</small>
+        </div>
+        <button
+          className="btn btn-sm btn-danger"
+          onClick={() => handleRemoveFromCart(index)}
+        >
+          Remove
+        </button>
+      </li>
+    ))}
+  </ul>
+</div>
 
-                        <div className="row mt-3">
-                          <div className="col text-left">
-                            <label htmlFor="type" className="form-label">
-                              Payment Mode
-                            </label>
-                            <select
-                              id="paymentMode"
-                              name="paymentMode"
-                              className="form-control"
-                              value={values.paymentMode}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                            >
-                              <option value="">Select Paymen Mode</option>
-                              {paymentMode.map((type, index) => (
-                                <option key={index} value={type}>
-                                  {type}
-                                </option>
-                              ))}
-                            </select>
-                            {errors.paymentMode && touched.paymentMode ? (
-                              <small className="text-danger mt-1">{errors.paymentMode}</small>
-                            ) : null}
-                          </div>
-                        </div>
+
                         <div className="row mt-3">
                           <div className="col text-right actionButtons">
                             <Button
@@ -701,7 +755,14 @@ const Registration = () => {
                             >
                               Clear
                             </Button>
-
+                            <Button
+  variant="success"
+  size="sm"
+  type="button"
+  onClick={addToCart}
+>
+  Add to Cart
+</Button>
                             <Button
                               variant="primary"
                               size="sm"
@@ -712,58 +773,55 @@ const Registration = () => {
                           </div>
                         </div>
                       </form>
-                      {/* PDF Preview Section */}
+                      
+                      {/* PDF Preview Section */
+                      }
 
                       <div className="col-md-5 d-flex align-items-center justify-content-center">
                         <div ref={pdfRef} className="receipt">
                           <h1 className="store-name">Siya's</h1>
-                          <p><b>A 1190 Mayur Vihar Phase 3,</b></p>
-                          <p><b>Delhi-110096</b></p>
-                          <p><b>Mobile No.- 8800854817</b></p>
+                          <p><b>A 1190 Mayur Vihar Phase 3,Delhi-96</b></p>
+                          <p><b>M.No- 8800854817</b></p>
                           <hr className="dashed-line" />
 
                           <div className="bill-info">
-                            <p><b>Bill</b> <span>{new Date().toLocaleString()}</span></p>
-                          </div>
-
-                          <hr className="dashed-line" />
-                          <p><b>Customer Details</b></p>
-
-                          <hr className="dashed-line" />
-
-                          <div className="bill-info">
-                            <p><b>Name:</b> <span>{values.customerName}</span></p>
-                          </div>
-                          <div className="bill-info">
-                            <p><b>Mobile:</b> <span>{values.customerMobile}</span></p>
+                            <p><b>Bill</b> <span>{new Date().toLocaleDateString()}</span></p>
                           </div>
 
                           <hr className="dashed-line" />
 
-                          <table className="receipt-table">
-                            <thead>
-                              <tr>
-                                <th>Item x Qty</th>
-                                <th>Rate</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              <tr>
-                                <td>1</td>
-                                <td>₹{values.mrp}</td>
-                              </tr>
-                              <tr>
-                                <td><span><i>{values.productBrand}-{values.productCategory}</i></span></td>
-                              </tr>
-                            </tbody>
-                          </table>
+                          <div className="bill-info">
+                            <p><span>{values.customerName}</span></p>
+                          </div>
+                          <div className="bill-info">
+                            <p><b>M.No:</b> <span>{values.customerMobile}</span></p>
+                          </div>
+
+                          <hr className="dashed-line" />
+
+                          <div style={{ fontWeight: "bold", display: "flex", justifyContent: "space-between", fontSize: "12px" }}>
+    <span style={{ width: "30%" }}>Item</span>
+    <span style={{ width: "15%", textAlign: "center" }}>MRP</span>
+    <span style={{ width: "15%", textAlign: "left" }}>%</span>
+    <span style={{ width: "15%", textAlign: "left" }}>Amt</span>
+  </div>
+  <hr />
+
+  {cartItems.map((item, index) => (
+    <div key={index} style={{ display: "flex", justifyContent: "space-between", fontSize: "11px" }}>
+      <span style={{ width: "28%" }}>{item.productBrand} {item.productCategory}</span>
+      <span style={{ width: "18%", textAlign: "right" }}>{item.mrp}</span>
+      <span style={{ width: "14%", textAlign: "right" }}>{(item.discountRate * 100)}%</span>
+      <span style={{ width: "30%", textAlign: "right" }}>{(item.discountAmount)}</span>
+    </div>
+  ))}
 
                           <hr className="dashed-line" />
 
                           <div className="total-section">
-                            <p>Discount <span>{(values.discountRate) * 100}%</span></p>
-                            <p className="grand-total"> Grand Total <span>₹{values.discountAmount}</span></p>
-                          </div>
+                            <p>Discount <span>{(maxDiscountRate) * 100}%</span></p>
+                            <p className="grand-total">Grand Total <span> ₹{totalAmount}</span></p>
+                            </div>
 
                           <hr className="dashed-line" />
 
