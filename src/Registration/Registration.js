@@ -1,10 +1,14 @@
-import React, { useEffect, useState,useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useFormik } from "formik";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 import "./Registration.css";
 import { Button } from "react-bootstrap";
 import { registrationSchema } from "./RegistrationSchema";
+import Select from "react-select";
+
+
+
 // eslint-disable-next-line jsx-a11y/anchor-is-valid
 
 const initialValues = {
@@ -12,13 +16,13 @@ const initialValues = {
   customerMobile: "",
   productCode: "",
   productBrand: "",
-  productCategory:"",
+  productCategory: "",
   mrp: "",
   size: "",
   color: "",
   discountRate: "",
   discountAmount: "",
-  paymentMode:  ""
+  paymentMode: ""
 };
 
 const Registration = () => {
@@ -26,7 +30,7 @@ const Registration = () => {
   const pdfRef = useRef(null);
 
   // my registartion changes
-    // my registartion changes 2 and 3
+  // my registartion changes 2 and 3
 
 
   const [productList, setProductList] = useState([]);
@@ -42,41 +46,41 @@ const Registration = () => {
         const cacheKey = "productList"; // Local Storage Key
         const cacheExpiryKey = "productListExpiry";
         const cacheExpiryTime = 60 * 60 * 1000; // 1 Hour in milliseconds
-  
+
         // Check if cached data exists and is still valid
         const cachedData = localStorage.getItem(cacheKey);
         const cachedExpiry = localStorage.getItem(cacheExpiryKey);
-  
+
         if (cachedData && cachedExpiry && Date.now() < parseInt(cachedExpiry)) {
           console.log("Using Cached Product List");
           setProductList(JSON.parse(cachedData));
           return;
         }
-  
+
         console.log("Fetching New Product List...");
         const response = await fetch(
           "https://script.google.com/macros/s/AKfycbw6qltraMzCkn1z4bQpGx69M4AtW7ju70zf1nPnEsPD-BoZX4mVRKP_-eU3MHN0BDWW-g/exec"
         );
-  
+
         if (!response.ok) {
           console.error("Failed to fetch product list");
           return;
         }
-  
+
         const data = await response.json();
         console.log("Fetched Product List:", data);
-  
+
         // Store in LocalStorage with expiry
         localStorage.setItem(cacheKey, JSON.stringify(data));
         localStorage.setItem(cacheExpiryKey, (Date.now() + cacheExpiryTime).toString());
-  
+
         // Update state
         setProductList(data);
       } catch (error) {
         console.error("Error fetching product list:", error);
       }
     };
-  
+
     fetchProductList();
   }, []);
 
@@ -110,7 +114,7 @@ const Registration = () => {
 
     // await uploadPDFToDrive(pdfBlob);
   };
-  
+
 
   // const uploadPDFToDrive = async (pdfBlob) => {
   //   const formData = new FormData();
@@ -193,7 +197,7 @@ const Registration = () => {
     };
 
     fetchAllData();
-}, []);
+  }, []);
 
 
 
@@ -272,7 +276,7 @@ const Registration = () => {
 
 
   const handleProductCodeChange = (selectedProductCode) => {
-    const selectedProduct = productList.find((product) => product.productCode  ===  selectedProductCode);
+    const selectedProduct = productList.find((product) => product.productCode === selectedProductCode);
 
     // Clear form values if no user is found
     if (!selectedProduct) {
@@ -293,24 +297,49 @@ const Registration = () => {
   };
 
 
+  const handleCustomChange = (e) => {
+    const { name, value } = e.target;
+
+    // Allow manual override for discount amount
+    if (name === "discountAmount") {
+      const mrp = parseFloat(values.mrp);
+      const discountAmount = parseFloat(value);
+
+      let newRate = "";
+      if (!isNaN(mrp) && mrp > 0 && !isNaN(discountAmount)) {
+        newRate = (discountAmount / mrp).toFixed(2); // decimal format like 0.25
+      }
+
+      formikSetValues((prev) => ({
+        ...prev,
+        discountAmount: value,
+        discountRate: newRate,
+      }));
+      return;
+    }
+
+    // Default case (normal field updates)
+    handleChange(e);
+  };
+
 
 
 
   const postData = async (formValues) => {
     console.log("Form Values:", formValues);
-    
+
     try {
       const currentDate = new Date();
       const dateString = currentDate.toISOString().slice(0, 19).replace("T", " ");
-  
+
       const url = "https://script.google.com/macros/s/AKfycby9g3lp701Kad95DFCW_FFkShgBrip7eqZERor4Gzdy3TjB1S70wmRE-QLLV_FEtF5PBA/exec?action=addFormData";
-      
+
       // Ensure formValues is valid
       if (!formValues || Object.keys(formValues).length === 0) {
         console.error("Error: formValues is empty or undefined.");
         return;
       }
-  
+
       const dataObject = {
         date: dateString,
         brandName: formValues.productBrand,
@@ -325,9 +354,9 @@ const Registration = () => {
         name: formValues.customerName,
         mobile: formValues.customerMobile,
       };
-  
+
       console.log("Data Object to Send:", dataObject);
-  
+
       const requestOptions = {
         redirect: "follow",
         method: 'POST',
@@ -338,10 +367,10 @@ const Registration = () => {
         body: JSON.stringify(dataObject),
       };
 
-      console.log("Registration data to be sent",dataObject)
+      console.log("Registration data to be sent", dataObject)
 
-       const response = await fetch(url, requestOptions);
-  
+      const response = await fetch(url, requestOptions);
+
       setAlert({ show: true, message: "Product Details Successfully Saved" });
       console.log(response)
 
@@ -352,7 +381,7 @@ const Registration = () => {
       console.error("Fetch Error:", error.message);
     }
   };
-  
+
 
   return (
     <div>
@@ -393,14 +422,14 @@ const Registration = () => {
                     <div class="col-md-2 col-lg-6 col-xl-5 order-2 order-lg-1">
                       <p class="text-center h1 fw-bold mb-5 mt-4">Siya Collection Bill Dashboard</p>
                       <div class="col-md-10 col-lg-6 col-xl-7 d-flex align-items-center order-1 order-lg-2">
-                      {/* <img
+                        {/* <img
                         src={vidhataImage} // Use the imported image
                         class="img-fluid"
                         alt="Shel Digtal Library"
                       /> */}
-                    </div>
-                      <form  class="col-md-7" onSubmit={handleSubmit}>
-                      <div className="row mt-3">
+                      </div>
+                      <form class="col-md-7" onSubmit={handleSubmit}>
+                        <div className="row mt-3">
                           <div className="col text-left">
                             <label htmlFor="first" className="form-label">
                               Customer Name
@@ -440,32 +469,41 @@ const Registration = () => {
                             ) : null}
                           </div>
                         </div>
-                      <div  className="row mt-3">
+                        <div className="row mt-3">
                           <div className="col text-left">
-                            <label htmlFor="type" className="form-label">
+                            <label htmlFor="productCode" className="form-label">
                               Product Code
                             </label>
-                            <select
+                            <Select
                               id="productCode"
                               name="productCode"
                               className="form-control"
-                              value={values.productCode}
-                              onChange= { (e) => {
-                                handleChange(e);
-                                handleProductCodeChange(e.target.value);
+                              classNamePrefix="select"
+                              options={productCode.map((code) => ({ value: code, label: code }))}
+                              value={
+                                values.productCode
+                                  ? { value: values.productCode, label: values.productCode }
+                                  : null
+                              }
+                              onChange={(selectedOption) => {
+                                const selectedValue = selectedOption ? selectedOption.value : "";
+                                // Update just productCode in Formik values
+                                formikSetValues((prev) => ({
+                                  ...prev,
+                                  productCode: selectedValue,
+                                }));
+                                // Then populate other fields
+                                handleProductCodeChange(selectedValue);
                               }}
                               onBlur={handleBlur}
-                            >
-                              <option value="">Select Product Code</option>
-                              {productCode.map((type, index) => (
-                                <option key={index} value={type}>
-                                  {type}
-                                </option>
-                              ))}
-                            </select>
-                            {errors.productCode && touched.productCode ? (
+                              isClearable
+                              placeholder="Search or select product code"
+                            />
+                            {errors.productCode && touched.productCode && (
                               <small className="text-danger mt-1">{errors.productCode}</small>
-                            ) : null}
+                            )}
+
+
                           </div>
                         </div>
                         <div className="row mt-3">
@@ -497,7 +535,7 @@ const Registration = () => {
                         <div className="row mt-3">
                           <div className="col text-left">
                             <label htmlFor="first" className="form-label">
-                             Product Category
+                              Product Category
                             </label>
                             <input
                               id="productCategory"
@@ -513,7 +551,7 @@ const Registration = () => {
                               </small>
                             ) : null}
                           </div>
-                        </div> 
+                        </div>
                         <div className="row mt-3">
                           <div className="col text-left">
                             <label htmlFor="first" className="form-label">
@@ -562,7 +600,7 @@ const Registration = () => {
                         <div className="row mt-3">
                           <div className="col text-left">
                             <label htmlFor="type" className="form-label">
-                            Colors
+                              Colors
                             </label>
                             <select
                               id="color"
@@ -617,9 +655,10 @@ const Registration = () => {
                               name="discountAmount"
                               className="form-control"
                               value={values.discountAmount}
-                              onChange={handleChange}
+                              onChange={handleCustomChange}
                               onBlur={handleBlur}
                             />
+
                             {errors.discountAmount && touched.discountAmount ? (
                               <small className="text-danger mt-1">
                                 {errors.discountAmount}
@@ -673,69 +712,69 @@ const Registration = () => {
                           </div>
                         </div>
                       </form>
-                        {/* PDF Preview Section */}
-   
-   <div className="col-md-5 d-flex align-items-center justify-content-center">
-  <div ref={pdfRef} className="receipt">
-    <h1 className="store-name">Siya's</h1>
-    <p><b>A 1190 Mayur Vihar Phase 3,</b></p>
-    <p><b>Delhi-110096</b></p>
-    <p><b>Mobile No.- 8800854817</b></p>
-    <hr className="dashed-line" />
+                      {/* PDF Preview Section */}
 
-    <div className="bill-info">
-      <p><b>Bill</b> <span>{new Date().toLocaleString()}</span></p>
-    </div>
+                      <div className="col-md-5 d-flex align-items-center justify-content-center">
+                        <div ref={pdfRef} className="receipt">
+                          <h1 className="store-name">Siya's</h1>
+                          <p><b>A 1190 Mayur Vihar Phase 3,</b></p>
+                          <p><b>Delhi-110096</b></p>
+                          <p><b>Mobile No.- 8800854817</b></p>
+                          <hr className="dashed-line" />
 
-    <hr className="dashed-line" />
-    <p><b>Customer Details</b></p>
+                          <div className="bill-info">
+                            <p><b>Bill</b> <span>{new Date().toLocaleString()}</span></p>
+                          </div>
 
-    <hr className="dashed-line" />
+                          <hr className="dashed-line" />
+                          <p><b>Customer Details</b></p>
 
-<div className="bill-info">
-  <p><b>Name:</b> <span>{values.customerName}</span></p>
-</div>
-<div className="bill-info">
-  <p><b>Mobile:</b> <span>{values.customerMobile}</span></p>
-</div>
+                          <hr className="dashed-line" />
 
-<hr className="dashed-line" />
+                          <div className="bill-info">
+                            <p><b>Name:</b> <span>{values.customerName}</span></p>
+                          </div>
+                          <div className="bill-info">
+                            <p><b>Mobile:</b> <span>{values.customerMobile}</span></p>
+                          </div>
 
-    <table className="receipt-table">
-      <thead>
-        <tr>
-          <th>Item x Qty</th>
-          <th>Rate</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>1</td>
-          <td>₹{values.mrp}</td>
-        </tr>
-        <tr>
-        <td><span><i>{values.productBrand}-{values.productCategory}</i></span></td>
-        </tr>
-      </tbody>
-    </table>
+                          <hr className="dashed-line" />
 
-    <hr className="dashed-line" />
+                          <table className="receipt-table">
+                            <thead>
+                              <tr>
+                                <th>Item x Qty</th>
+                                <th>Rate</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <td>1</td>
+                                <td>₹{values.mrp}</td>
+                              </tr>
+                              <tr>
+                                <td><span><i>{values.productBrand}-{values.productCategory}</i></span></td>
+                              </tr>
+                            </tbody>
+                          </table>
 
-    <div className="total-section">
-      <p>Discount <span>{(values.discountRate)*100}%</span></p>
-      <p className="grand-total"> Grand Total <span>₹{values.discountAmount}</span></p>
-    </div>
+                          <hr className="dashed-line" />
 
-    <hr className="dashed-line" />
+                          <div className="total-section">
+                            <p>Discount <span>{(values.discountRate) * 100}%</span></p>
+                            <p className="grand-total"> Grand Total <span>₹{values.discountAmount}</span></p>
+                          </div>
 
-    <p className="thank-you">Thank You</p>
-    <p className="visit-again">Visit Again!!!!!</p>
-  </div>
-</div>
+                          <hr className="dashed-line" />
 
-    
+                          <p className="thank-you">Thank You</p>
+                          <p className="visit-again">Visit Again!!!!!</p>
+                        </div>
+                      </div>
+
+
                     </div>
-                    
+
                   </div>
                 </div>
               </div>
