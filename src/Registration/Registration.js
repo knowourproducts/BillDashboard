@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, forwardRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useFormik } from "formik";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
@@ -35,9 +35,10 @@ const Registration = () => {
   const [productList, setProductList] = useState([]);
   const [productCode, setProductCodes] = useState([]); // State to store seat type
   const [productBrand, setBrandNames] = useState([]); // Use to Set Time Slot
+  const [paymentMode, setPaymentModes] = useState([]); // State to store seat type
+
   const [sizes, setSizes] = useState([]); // State to store seat type
   const [colors, setColors] = useState([]); // State to store seat type
-  const [paymentMode, setPaymentModes] = useState([]); // State to store seat type
   const [cartItems, setCartItems] = useState([]);
   const totalAmount = cartItems.reduce((acc, item) => acc + parseFloat(item.discountAmount || 0), 0);
   const [selectedPaymentMode, setSelectedPaymentMode] = useState("");
@@ -353,7 +354,7 @@ const Registration = () => {
 
       let newRate = "";
       if (!isNaN(mrp) && mrp > 0 && !isNaN(discountAmount)) {
-        newRate = (discountAmount / mrp).toFixed(1); // decimal format like 0.25
+        newRate = 1 - (discountAmount / mrp).toFixed(1); // decimal format like 0.25
       }
 
       formikSetValues((prev) => ({
@@ -763,6 +764,24 @@ const dataObject = {
 >
   Add to Cart
 </Button>
+<div className="row mt-4">
+  <div className="col text-left">
+    <label className="form-label">Payment Mode</label>
+    <select
+      className="form-control"
+      value={selectedPaymentMode}
+      onChange={(e) => setSelectedPaymentMode(e.target.value)}
+    >
+      <option value="">Select Payment Mode</option>
+      {paymentMode.map((mode, index) => (
+        <option key={index} value={mode}>
+          {mode}
+        </option>
+      ))}
+    </select>
+  </div>
+</div>
+
                             <Button
                               variant="primary"
                               size="sm"
