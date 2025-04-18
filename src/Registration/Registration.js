@@ -103,10 +103,10 @@ const Registration = () => {
     const pdf = new jsPDF({
       orientation: "portrait",
       unit: "mm",
-      format: [48, 135], // 48mm width, 100mm height
+      format: [52, 135], // 52mm width, 100mm height
     });
 
-    pdf.addImage(imgData, "PNG", 0, 0, 48, (canvas.height * 48) / canvas.width);
+    pdf.addImage(imgData, "PNG", 0, 0, 52, (canvas.height * 52) / canvas.width);
 
     // Open the PDF in a new browser tab
     const pdfBlob = pdf.output("blob");
@@ -294,31 +294,36 @@ const Registration = () => {
 
 
 
-  const addToCart = () => {
-    if (!values.productCode || !values.mrp) {
-      alert("Please select a product and MRP before adding to cart.");
-      return;
-    }
-  
-    const item = { ...values };
-  
-    setCartItems(prev => [...prev, item]);
-  
-    // Reset only product fields, retain customer info
-    formikSetValues({
-      customerName: values.customerName,
-      customerMobile: values.customerMobile,
-      productCode: "",
-      productBrand: "",
-      productCategory: "",
-      mrp: "",
-      size: "",
-      color: "",
-      discountRate: "",
-      discountAmount: "",
-      paymentMode: ""
-    });
-  };
+    const addToCart = () => {
+      if (!values.productCode || !values.mrp) {
+        alert("Please select a product and MRP before adding to cart.");
+        return;
+      }
+    
+      const item = {
+        ...values,
+        discountAmount: parseFloat(values.discountAmount || 0),
+        discountRate: parseFloat(values.discountRate || 0),
+        mrp: parseFloat(values.mrp || 0),
+      };
+    
+      setCartItems(prev => [...prev, item]);
+    
+      // Reset only product fields, retain customer info
+      formikSetValues({
+        customerName: values.customerName,
+        customerMobile: values.customerMobile,
+        productCode: "",
+        productBrand: "",
+        productCategory: "",
+        mrp: "",
+        size: "",
+        color: "",
+        discountRate: "",
+        discountAmount: "",
+      });
+    };
+    
   
 
 
@@ -730,11 +735,11 @@ const dataObject = {
     {cartItems.map((item, index) => (
       <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
         <div>
-          <strong>{item.productCode}</strong> - ₹{item.discountAmount.toFixed(1)}
+        <strong>{item.productCode}</strong> - ₹{parseFloat(item.discountAmount).toFixed(1)}
           <br />
           <small>{item.productBrand} / {item.productCategory}</small>
-          <small><span>    </span>{item.discountRate.toFixed(1) * 100}%</small>
-        </div>
+          <small><span> </span>{(parseFloat(item.discountRate) * 100).toFixed(1)}%</small>
+          </div>
         <button
           className="btn btn-sm btn-danger"
           onClick={() => handleRemoveFromCart(index)}
