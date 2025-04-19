@@ -833,10 +833,10 @@ const dataObject = {
 
   {cartItems.map((item, index) => (
     <div key={index} style={{ display: "flex", justifyContent: "space-between", fontSize: "11px" }}>
-      <span style={{ width: "28%" }}>{item.productBrand} {item.productCategory}</span>
+      <span style={{ width: "27%" }}>{item.productBrand} {item.productCategory}</span>
       <span style={{ width: "18%", textAlign: "right" }}>{item.mrp}</span>
-      <span style={{ width: "14%", textAlign: "right" }}>{(item.discountRate * 100)}%</span>
-      <span style={{ width: "30%", textAlign: "right" }}>{(item.discountAmount)}</span>
+      <span style={{ width: "18%", textAlign: "right" }}>{(item.discountRate * 100).toFixed(0)}%</span>
+      <span style={{ width: "28%", textAlign: "right" }}>{(item.discountAmount)}</span>
     </div>
   ))}
 
